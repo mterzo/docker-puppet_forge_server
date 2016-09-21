@@ -4,18 +4,22 @@
 # Author: Matteo Cerutti <matteo.cerutti@hotmail.co.uk>
 #
 
-FROM centos:7
+FROM ruby:2.3.1-alpine
 MAINTAINER Matteo Cerutti <matteo.cerutti@hotmail.co.uk>
 
 ENV PUPPET_FORGE_SERVER_BASEDIR /srv/puppet-forge-server
 ENV PUPPET_FORGE_SERVER_VERSION 1.9.0
 
-RUN yum install gcc make ruby-devel rubygems -y
+RUN apk add --no-cache \
+      gcc \
+      make \
+      libc-dev \
+      ruby-dev
 
 # Needed to fetch dependencies
+RUN mkdir -p $PUPPET_FORGE_SERVER_BASEDIR
 RUN gem install puppet-forge-server -v $PUPPET_FORGE_SERVER_VERSION
 RUN gem install puma
-RUN mkdir -p $PUPPET_FORGE_SERVER_BASEDIR
 
 ADD run.sh /run.sh
 
