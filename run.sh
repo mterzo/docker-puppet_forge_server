@@ -1,36 +1,22 @@
-#!/bin/bash
+#!/bin/sh
 #
 # run.sh
 #
-# Author: Matteo Cerutti <matteo.cerutti@hotmail.co.uk>
-#
+# Original Author: Matteo Cerutti <matteo.cerutti@hotmail.co.uk>
+# Author: Mike Terzo <mike@terzo.org>
 
 PUPPET_FORGE_SERVER_PORT=${PUPPET_FORGE_SERVER_PORT:-8080}
-PUPPET_FORGE_SERVER_CACHEDIR=${PUPPET_FORGE_SERVER_CACHEDIR:-$PUPPET_FORGE_SERVER_BASEDIR/cache}
 
-PUPPET_FORGE_SERVER_OPTS=
-if [ -n "$PUPPET_FORGE_SERVER_MODULEDIR" ]; then
-  for moduledir in $PUPPET_FORGE_SERVER_MODULEDIR; do
-    PUPPET_FORGE_SERVER_OPTS="$PUPPET_FORGE_SERVER_OPTS --module-dir $moduledir"
-    mkdir -p $moduledir
-  done
-fi
-
-if [ -n "$PUPPET_FORGE_SERVER_PROXY" ]; then
-  for proxy in $PUPPET_FORGE_SERVER_PROXY; do
-    PUPPET_FORGE_SERVER_OPTS="$PUPPET_FORGE_SERVER_OPTS --proxy $proxy"
-  done
-fi
-
-PUPPET_FORGE_SERVER_DEBUG=${PUPPET_FORGE_SERVER_DEBUG:-0}
-[ $PUPPET_FORGE_SERVER_DEBUG -eq 1 ] && PUPPET_FORGE_SERVER_OPTS="$PUPPET_FORGE_SERVER_OPTS --debug"
-
-# prepare directories
-mkdir -p $PUPPET_FORGE_SERVER_CACHEDIR
-if [ -n "$PUPPET_FORGE_SERVER_LOGDIR"  ]; then
-  mkdir -p $PUPPET_FORGE_SERVER_LOGDIR
-  PUPPET_FORGE_SERVER_OPTS="$PUPPET_FORGE_SERVER_OPTS --log-dir $PUPPET_FORGE_SERVER_LOGDIR"
-fi
+mkdir -p ${PUPPET_FORGE_SERVER_BASEDIR}
+mkdir -p ${FORGE_SERVER_MODULEDIR}
+mkdir -p ${FORGE_SERVER_CACHEDIR}
+mkdir -p ${FORGE_SERVER_LOGDIR}
 
 echo "Starting puppet-forge-server"
-puppet-forge-server --port $PUPPET_FORGE_SERVER_PORT --cache-basedir $PUPPET_FORGE_SERVER_CACHEDIR $PUPPET_FORGE_SERVER_OPTS
+puppet-forge-server --port $PUPPET_FORGE_SERVER_PORT \
+    -m ${FORGE_SERVER_MODULEDIR} \
+    -x ${FORGE_CACHE_SERVER} \
+    --log-dir ${FORGE_SERVER_LOGDIR} \
+    --cache-basedir $PUPPET_FORGE_SERVER_CACHEDIR \
+    --webui-root /app/webui
+    $PUPPET_EXTRA_ARGS
